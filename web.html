@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quản Lý Điểm – GUI</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #f0f4ff;
+  --surface:  #ffffff;
+  --border:   #dde3f5;
+  --primary:  #3b6ef8;
+  --primary-h:#2a55d6;
+  --success:  #22c55e;
+  --danger:   #ef4444;
+  --warning:  #f59e0b;
+  --text:     #1e2640;
+  --muted:    #7b85a3;
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Be Vietnam Pro', sans-serif;
+  --shadow:   0 2px 16px rgba(59,110,248,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;}
+
+
+header{
+  background:var(--primary);
+  color:#fff;
+  padding:18px 28px;
+  display:flex;align-items:center;gap:14px;
+  box-shadow:0 2px 12px rgba(59,110,248,.3);
+}
+header .logo{
+  width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;
+}
+header h1{font-size:1.2rem;font-weight:800;letter-spacing:-.01em;}
+header p{font-size:.8rem;opacity:.8;margin-top:1px;}
+
+
+.app{display:flex;min-height:calc(100vh - 70px);}
+
+
+aside{
+  width:210px;flex-shrink:0;
+  background:var(--surface);border-right:1px solid var(--border);
+  padding:16px 10px;display:flex;flex-direction:column;gap:4px;
+}
+aside button{
+  width:100%;text-align:left;background:none;border:none;cursor:pointer;
+  padding:9px 14px;border-radius:8px;font-family:var(--sans);font-size:.88rem;
+  font-weight:500;color:var(--muted);transition:.15s;display:flex;align-items:center;gap:8px;
+}
+aside button:hover{background:var(--bg);color:var(--text);}
+aside button.active{background:#eff3ff;color:var(--primary);font-weight:700;}
+aside .section-label{
+  font-size:.7rem;font-weight:700;letter-spacing:.1em;color:var(--muted);
+  text-transform:uppercase;padding:12px 14px 4px;
+}
+
+
+.content{flex:1;padding:24px;overflow:auto;}
+.content-header{
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;
+}
+.content-header h2{font-size:1.2rem;font-weight:800;color:var(--text);}
+
+
+.search-wrap{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.search-wrap input{
+  border:1px solid var(--border);border-radius:8px;padding:7px 12px;
+  font-family:var(--sans);font-size:.85rem;background:var(--surface);color:var(--text);
+  width:210px;outline:none;transition:.2s;
+}
+.search-wrap input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,110,248,.1);}
+
+
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  border:none;border-radius:8px;cursor:pointer;font-family:var(--sans);font-weight:600;
+  padding:8px 16px;font-size:.85rem;transition:.15s;white-space:nowrap;
+}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary-h);}
+.btn-success{background:var(--success);color:#fff;}
+.btn-success:hover{background:#16a34a;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-danger:hover{background:#dc2626;}
+.btn-warning{background:var(--warning);color:#fff;}
+.btn-warning:hover{background:#d97706;}
+.btn-ghost{background:var(--border);color:var(--text);}
+.btn-ghost:hover{background:#c8d0e8;}
+.btn-sm{padding:5px 10px;font-size:.78rem;border-radius:6px;}
+
+
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
+table{width:100%;border-collapse:collapse;}
+thead{background:#f5f7ff;}
+thead th{
+  padding:11px 14px;text-align:left;font-size:.78rem;font-weight:700;
+  color:var(--muted);letter-spacing:.06em;text-transform:uppercase;
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+tbody tr{border-bottom:1px solid var(--border);transition:.12s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:#f8faff;}
+tbody td{padding:10px 14px;font-size:.86rem;color:var(--text);}
+.actions-cell{display:flex;gap:6px;white-space:nowrap;}
+
+
+.badge{
+  display:inline-block;padding:2px 9px;border-radius:99px;font-size:.72rem;font-weight:700;
+}
+.badge-A{background:#d1fae5;color:#065f46;}
+.badge-B{background:#dbeafe;color:#1e40af;}
+.badge-C{background:#fef9c3;color:#854d0e;}
+.badge-D{background:#ffedd5;color:#9a3412;}
+.badge-F{background:#fee2e2;color:#991b1b;}
+
+
+.empty{text-align:center;padding:48px;color:var(--muted);}
+.empty .icon{font-size:2.5rem;margin-bottom:12px;}
+
+
+.overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;
+  align-items:center;justify-content:center;
+}
+.overlay.open{display:flex;}
+.modal{
+  background:var(--surface);border-radius:16px;width:min(520px,95vw);
+  padding:28px;box-shadow:0 8px 40px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto;
+  animation:slideUp .2s ease;
+}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.modal h3{font-size:1.05rem;font-weight:800;margin-bottom:18px;color:var(--text);}
+
+
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:.82rem;font-weight:600;color:var(--muted);margin-bottom:5px;}
+.form-group input,.form-group select{
+  width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 12px;
+  font-family:var(--sans);font-size:.88rem;background:var(--surface);color:var(--text);
+  outline:none;transition:.2s;
+}
+.form-group input:focus,.form-group select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,110,248,.1);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+
+
+.toast{
+  position:fixed;bottom:24px;right:24px;background:#1e2640;color:#fff;
+  padding:12px 20px;border-radius:10px;font-size:.85rem;font-weight:600;
+  opacity:0;transform:translateY(10px);transition:.3s;z-index:200;pointer-events:none;
+}
+.toast.show{opacity:1;transform:none;}
+
+
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:22px;}
+.stat-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  padding:16px 18px;box-shadow:var(--shadow);
+}
+.stat-card .num{font-size:2rem;font-weight:800;color:var(--primary);line-height:1;}
+.stat-card .label{font-size:.8rem;color:var(--muted);margin-top:4px;font-weight:500;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🎓</div>
+  <div>
+    <h1>Quản Lý Điểm Sinh Viên</h1>
+    <p>Hệ thống quản lý CSDL – Thêm · Sửa · Xóa · Xem</p>
+  </div>
+</header>
+
+<div class="app">
+
+  <aside>
+    <div class="section-label">Quản lý</div>
+    <button onclick="showTab('dashboard')" id="tab-dashboard" class="active">🏠 Tổng quan</button>
+    <button onclick="showTab('sinhvien')"  id="tab-sinhvien">👤 Sinh viên</button>
+    <button onclick="showTab('giangvien')" id="tab-giangvien">👨‍🏫 Giảng viên</button>
+    <button onclick="showTab('monhoc')"    id="tab-monhoc">📚 Môn học</button>
+    <button onclick="showTab('diem')"      id="tab-diem">📊 Điểm số</button>
+    <div class="section-label" style="margin-top:8px">Danh mục</div>
+    <button onclick="showTab('lop')"       id="tab-lop">🏫 Lớp học</button>
+    <button onclick="showTab('khoa')"      id="tab-khoa">🏛 Khoa</button>
+  </aside>
+
+
+  <div class="content" id="content"></div>
+</div>
+
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal-box">
+    <h3 id="modal-title">Form</h3>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Hủy</button>
+      <button class="btn btn-primary" id="modal-save" onclick="saveRecord()">💾 Lưu</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+<script>
+
+const DB = {
+  khoa: [
+    {ma_khoa:'CNTT', ten_khoa:'Khoa Công nghệ Thông tin'},
+    {ma_khoa:'VT',   ten_khoa:'Khoa Viễn thông'},
+    {ma_khoa:'KTDT', ten_khoa:'Khoa Kỹ thuật Điện tử'},
+    {ma_khoa:'QTKD', ten_khoa:'Khoa Quản trị Kinh doanh'},
+    {ma_khoa:'TOAN', ten_khoa:'Khoa Toán - Tin'},
+  ],
+  lop: [
+    {ma_lop:'K80CNTT1', ten_lop:'K80CNTT1', khoa:'Công nghệ Thông tin'},
+    {ma_lop:'K80CNTT2', ten_lop:'K80CNTT2', khoa:'Công nghệ Thông tin'},
+    {ma_lop:'K80VT1',   ten_lop:'K80VT1',   khoa:'Viễn thông'},
+    {ma_lop:'K80VT2',   ten_lop:'K80VT2',   khoa:'Viễn thông'},
+    {ma_lop:'K80KTDT1', ten_lop:'K80KTDT1', khoa:'Kỹ thuật Điện tử'},
+    {ma_lop:'K80KTDT2', ten_lop:'K80KTDT2', khoa:'Kỹ thuật Điện tử'},
+    {ma_lop:'K80QTKD1', ten_lop:'K80QTKD1', khoa:'Quản trị Kinh doanh'},
+    {ma_lop:'K80QTKD2', ten_lop:'K80QTKD2', khoa:'Quản trị Kinh doanh'},
+  ],
+  sinh_vien: [
+    {ma:'B25001', ho_ten:'Nguyễn Văn An',    ngay_sinh:'2007-03-15', gioi_tinh:'Nam', email:'annguyen@hdn.edu.vn',   ma_lop:'K80CNTT1'},
+    {ma:'B25002', ho_ten:'Trần Thị Bình',    ngay_sinh:'2007-06-20', gioi_tinh:'Nữ',  email:'binhtran@hdn.edu.vn',  ma_lop:'K80CNTT1'},
+    {ma:'B25003', ho_ten:'Lê Hoàng Cường',   ngay_sinh:'2007-01-10', gioi_tinh:'Nam', email:'cuongle@hdn.edu.vn',    ma_lop:'K80CNTT2'},
+    {ma:'B25004', ho_ten:'Phạm Thị Dung',    ngay_sinh:'2007-09-25', gioi_tinh:'Nữ',  email:'dungpham@hdn.edu.vn',  ma_lop:'K80VT1'},
+    {ma:'B25005', ho_ten:'Hoàng Văn Em',     ngay_sinh:'2007-12-05', gioi_tinh:'Nam', email:'emhoang@hdn.edu.vn',    ma_lop:'K80VT1'},
+    {ma:'B25006', ho_ten:'Ngô Thị Phương',   ngay_sinh:'2007-04-18', gioi_tinh:'Nữ',  email:'phuongngo@hdn.edu.vn', ma_lop:'K80KTDT1'},
+    {ma:'B25007', ho_ten:'Vũ Đình Giang',    ngay_sinh:'2007-07-22', gioi_tinh:'Nam', email:'giangvu@hdn.edu.vn',    ma_lop:'K80KTDT1'},
+    {ma:'B25008', ho_ten:'Đặng Thị Hoa',     ngay_sinh:'2007-02-14', gioi_tinh:'Nữ',  email:'hoadang@hdn.edu.vn',   ma_lop:'K80QTKD1'},
+    {ma:'B25009', ho_ten:'Bùi Văn Hùng',     ngay_sinh:'2007-08-30', gioi_tinh:'Nam', email:'hungbui@hdn.edu.vn',    ma_lop:'K80QTKD1'},
+    {ma:'B25010', ho_ten:'Lý Thị Lan',       ngay_sinh:'2007-11-11', gioi_tinh:'Nữ',  email:'lanly@hdn.edu.vn',      ma_lop:'K80CNTT2'},
+    {ma:'B25011', ho_ten:'Trịnh Văn Minh',   ngay_sinh:'2007-05-07', gioi_tinh:'Nam', email:'minhtrinh@hdn.edu.vn',  ma_lop:'K80VT2'},
+    {ma:'B25012', ho_ten:'Đinh Thị Ngọc',    ngay_sinh:'2007-10-19', gioi_tinh:'Nữ',  email:'ngocdinh@hdn.edu.vn',  ma_lop:'K80VT2'},
+    {ma:'B25013', ho_ten:'Phan Văn Phúc',    ngay_sinh:'2007-03-28', gioi_tinh:'Nam', email:'phucphan@hdn.edu.vn',   ma_lop:'K80KTDT2'},
+    {ma:'B25014', ho_ten:'Cao Thị Quỳnh',    ngay_sinh:'2007-06-03', gioi_tinh:'Nữ',  email:'quynhcao@hdn.edu.vn',  ma_lop:'K80KTDT2'},
+    {ma:'B25015', ho_ten:'Đỗ Minh Sơn',      ngay_sinh:'2007-09-16', gioi_tinh:'Nam', email:'sondo@hdn.edu.vn',      ma_lop:'K80QTKD2'},
+  ],
+  giang_vien: [
+    {id:'GV001', ho_ten:'TS. Huỳnh Phương Lộc',   email:'huynhpl@hdn.edu.vn',  trinh_do:'Tiến sĩ',     ma_khoa:'CNTT'},
+    {id:'GV002', ho_ten:'ThS. Trần Thị Hương',     email:'huongtt@hdn.edu.vn',  trinh_do:'Thạc sĩ',     ma_khoa:'CNTT'},
+    {id:'GV003', ho_ten:'PGS.TS. Lê Văn Dũng',    email:'dunglv@hdn.edu.vn',   trinh_do:'Phó Giáo sư', ma_khoa:'VT'},
+    {id:'GV004', ho_ten:'TS. Phạm Quốc Bảo',      email:'baopq@hdn.edu.vn',    trinh_do:'Tiến sĩ',     ma_khoa:'VT'},
+    {id:'GV005', ho_ten:'ThS. Hoàng Thị Lan',      email:'lanht@hdn.edu.vn',    trinh_do:'Thạc sĩ',     ma_khoa:'KTDT'},
+    {id:'GV006', ho_ten:'GS.TS. Vũ Mạnh Cường',   email:'cuongvm@hdn.edu.vn',  trinh_do:'Giáo sư',     ma_khoa:'KTDT'},
+    {id:'GV007', ho_ten:'TS. Ngô Thị Phượng',      email:'phuongnt@hdn.edu.vn', trinh_do:'Tiến sĩ',     ma_khoa:'QTKD'},
+    {id:'GV008', ho_ten:'ThS. Đặng Văn Hưng',      email:'hungdv@hdn.edu.vn',   trinh_do:'Thạc sĩ',     ma_khoa:'QTKD'},
+  ],
+  mon_hoc: [
+    {ma:'INT1101', ten:'Nhập môn lập trình',              tc:3, ma_khoa:'CNTT'},
+    {ma:'INT1201', ten:'Cấu trúc dữ liệu và giải thuật', tc:3, ma_khoa:'CNTT'},
+    {ma:'INT1301', ten:'Cơ sở dữ liệu',                  tc:3, ma_khoa:'CNTT'},
+    {ma:'INT1401', ten:'Mạng máy tính',                   tc:3, ma_khoa:'CNTT'},
+    {ma:'INT1501', ten:'Lập trình hướng đối tượng',       tc:3, ma_khoa:'CNTT'},
+    {ma:'VT2101',  ten:'Kỹ thuật truyền dẫn',            tc:3, ma_khoa:'VT'},
+    {ma:'VT2201',  ten:'Thông tin di động',               tc:3, ma_khoa:'VT'},
+    {ma:'KT3101',  ten:'Điện tử tương tự',               tc:3, ma_khoa:'KTDT'},
+    {ma:'QT4101',  ten:'Quản trị học',                    tc:3, ma_khoa:'QTKD'},
+    {ma:'TOAN101', ten:'Giải tích 1',                     tc:4, ma_khoa:'TOAN'},
+  ],
+  diem: [
+    {ma_sv:'B25001', ma_lhp:'LHP001', mon:'Nhập môn lập trình',              cc:9.0, gk:8.5, ck:8.0, tk:8.5, xl:'A'},
+    {ma_sv:'B25002', ma_lhp:'LHP001', mon:'Nhập môn lập trình',              cc:8.0, gk:7.5, ck:7.0, tk:7.5, xl:'B'},
+    {ma_sv:'B25003', ma_lhp:'LHP002', mon:'Cấu trúc dữ liệu và giải thuật', cc:7.0, gk:6.5, ck:6.0, tk:6.5, xl:'C'},
+    {ma_sv:'B25004', ma_lhp:'LHP006', mon:'Kỹ thuật truyền dẫn',            cc:9.5, gk:9.0, ck:9.0, tk:9.2, xl:'A'},
+    {ma_sv:'B25005', ma_lhp:'LHP006', mon:'Kỹ thuật truyền dẫn',            cc:6.0, gk:5.5, ck:5.0, tk:5.5, xl:'D'},
+    {ma_sv:'B25006', ma_lhp:'LHP009', mon:'Điện tử tương tự',               cc:8.5, gk:8.0, ck:7.5, tk:8.0, xl:'B'},
+    {ma_sv:'B25007', ma_lhp:'LHP009', mon:'Điện tử tương tự',               cc:9.0, gk:9.5, ck:9.0, tk:9.2, xl:'A'},
+    {ma_sv:'B25008', ma_lhp:'LHP011', mon:'Quản trị học',                    cc:7.5, gk:7.0, ck:6.5, tk:7.0, xl:'B'},
+    {ma_sv:'B25009', ma_lhp:'LHP011', mon:'Quản trị học',                    cc:5.0, gk:4.5, ck:4.0, tk:4.5, xl:'D'},
+    {ma_sv:'B25010', ma_lhp:'LHP003', mon:'Cơ sở dữ liệu',                  cc:8.0, gk:8.5, ck:8.0, tk:8.2, xl:'A'},
+    {ma_sv:'B25014', ma_lhp:'LHP010', mon:'Vi xử lý và vi điều khiển',       cc:3.5, gk:3.0, ck:3.0, tk:3.2, xl:'F'},
+  ]
+};
+
+let currentTab = 'dashboard';
+let editingIndex = null;
+let editingTable = null;
+let searchTerm = '';
+
+
+function toast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = (type==='success'?'✅ ':'❌ ') + msg;
+  t.style.background = type==='success'?'#16a34a':'#dc2626';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+
+
+function showTab(tab) {
+  currentTab = tab; searchTerm = '';
+  document.querySelectorAll('aside button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  render();
+}
+
+
+function render() {
+  const c = document.getElementById('content');
+  if (currentTab==='dashboard') { renderDashboard(c); return; }
+  if (currentTab==='sinhvien')  { renderSV(c); return; }
+  if (currentTab==='giangvien') { renderGV(c); return; }
+  if (currentTab==='monhoc')    { renderMH(c); return; }
+  if (currentTab==='diem')      { renderDiem(c); return; }
+  if (currentTab==='lop')       { renderLop(c); return; }
+  if (currentTab==='khoa')      { renderKhoa(c); return; }
+}
+
+
+function renderDashboard(c) {
+  const xlCount = {};
+  DB.diem.forEach(d=>{ xlCount[d.xl]=(xlCount[d.xl]||0)+1; });
+  c.innerHTML = `
+    <div class="content-header"><h2>🏠 Tổng quan hệ thống</h2></div>
+    <div class="stats">
+      <div class="stat-card"><div class="num">${DB.sinh_vien.length}</div><div class="label">👤 Sinh viên</div></div>
+      <div class="stat-card"><div class="num">${DB.giang_vien.length}</div><div class="label">👨‍🏫 Giảng viên</div></div>
+      <div class="stat-card"><div class="num">${DB.mon_hoc.length}</div><div class="label">📚 Môn học</div></div>
+      <div class="stat-card"><div class="num">${DB.diem.length}</div><div class="label">📊 Bản ghi điểm</div></div>
+      <div class="stat-card"><div class="num">${DB.lop.length}</div><div class="label">🏫 Lớp học</div></div>
+      <div class="stat-card"><div class="num">${DB.khoa.length}</div><div class="label">🏛 Khoa</div></div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow);">
+      <div style="font-weight:700;margin-bottom:14px;font-size:.95rem;">📊 Phân bố xếp loại điểm</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        ${['A','B','C','D','F'].map(xl=>`
+          <div style="flex:1;min-width:80px;background:var(--bg);border-radius:10px;padding:14px;text-align:center;">
+            <span class="badge badge-${xl}" style="font-size:1rem;padding:4px 14px;">${xl}</span>
+            <div style="font-size:1.6rem;font-weight:800;margin-top:8px;color:var(--primary);">${xlCount[xl]||0}</div>
+            <div style="font-size:.75rem;color:var(--muted);">sinh viên</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+
+function renderSV(c) {
+  const q = searchTerm.toLowerCase();
+  const data = DB.sinh_vien.filter(r=>!q||r.ho_ten.toLowerCase().includes(q)||r.ma.includes(q)||r.ma_lop.toLowerCase().includes(q));
+  c.innerHTML = `
+    <div class="content-header">
+      <h2>👤 Sinh viên <span style="font-weight:400;font-size:.9rem;color:var(--muted)">(${data.length} bản ghi)</span></h2>
+      <div class="search-wrap">
+        <input type="text" placeholder="🔍 Tìm tên, mã SV..." value="${searchTerm}" oninput="searchTerm=this.value;renderSV(document.getElementById('content'))">
+        <button class="btn btn-primary" onclick="openAddSV()">➕ Thêm mới</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Mã SV</th><th>Họ tên</th><th>Ngày sinh</th><th>Giới tính</th><th>Lớp</th><th>Email</th><th>Thao tác</th></tr></thead>
+        <tbody>${data.length?data.map((r,i)=>{
+          const ri=DB.sinh_vien.indexOf(r);
+          return`<tr>
+            <td style="font-family:var(--mono);font-size:.8rem;color:var(--primary);font-weight:600">${r.ma}</td>
+            <td style="font-weight:600">${r.ho_ten}</td>
+            <td>${r.ngay_sinh}</td>
+            <td>${r.gioi_tinh}</td>
+            <td><span style="background:#eff3ff;color:var(--primary);padding:2px 8px;border-radius:6px;font-size:.8rem;font-weight:600">${r.ma_lop}</span></td>
+            <td style="color:var(--muted);font-size:.82rem">${r.email}</td>
+            <td><div class="actions-cell">
+              <button class="btn btn-warning btn-sm" onclick="openEditSV(${ri})">✏️ Sửa</button>
+              <button class="btn btn-danger btn-sm"  onclick="deleteSV(${ri})">🗑 Xóa</button>
+            </div></td>
+          </tr>`;}).join(''):`<tr><td colspan="7"><div class="empty"><div class="icon">😶</div>Không tìm thấy dữ liệu</div></td></tr>`}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function lopOptions(sel='') {
+  return DB.lop.map(l=>`<option value="${l.ma_lop}"${l.ma_lop===sel?' selected':''}>${l.ma_lop} – ${l.ten_lop}</option>`).join('');
+}
+function khoaOptions(sel='') {
+  return DB.khoa.map(k=>`<option value="${k.ma_khoa}"${k.ma_khoa===sel?' selected':''}>${k.ma_khoa} – ${k.ten_khoa}</option>`).join('');
+}
+
+function openAddSV() {
+  editingIndex=null; editingTable='sv';
+  document.getElementById('modal-title').textContent='➕ Thêm sinh viên mới';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-row">
+      <div class="form-group"><label>Mã sinh viên *</label><input id="f_ma" placeholder="VD: B25016"></div>
+      <div class="form-group"><label>Họ tên *</label><input id="f_ten" placeholder="Nguyễn Văn A"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Ngày sinh</label><input id="f_ns" type="date" value="2007-01-01"></div>
+      <div class="form-group"><label>Giới tính</label>
+        <select id="f_gt"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
+    </div>
+    <div class="form-group"><label>Email</label><input id="f_email" type="email" placeholder="email@hdn.edu.vn"></div>
+    <div class="form-group"><label>Lớp</label><select id="f_lop">${lopOptions()}</select></div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function openEditSV(i) {
+  editingIndex=i; editingTable='sv';
+  const r=DB.sinh_vien[i];
+  document.getElementById('modal-title').textContent='✏️ Sửa thông tin sinh viên';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-row">
+      <div class="form-group"><label>Mã sinh viên</label><input id="f_ma" value="${r.ma}" readonly style="background:#f5f7ff;color:var(--muted)"></div>
+      <div class="form-group"><label>Họ tên *</label><input id="f_ten" value="${r.ho_ten}"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Ngày sinh</label><input id="f_ns" type="date" value="${r.ngay_sinh}"></div>
+      <div class="form-group"><label>Giới tính</label>
+        <select id="f_gt"><option${r.gioi_tinh==='Nam'?' selected':''} value="Nam">Nam</option><option${r.gioi_tinh==='Nữ'?' selected':''} value="Nữ">Nữ</option></select></div>
+    </div>
+    <div class="form-group"><label>Email</label><input id="f_email" type="email" value="${r.email}"></div>
+    <div class="form-group"><label>Lớp</label><select id="f_lop">${lopOptions(r.ma_lop)}</select></div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function deleteSV(i) {
+  if(!confirm(`Xóa sinh viên "${DB.sinh_vien[i].ho_ten}"?`)) return;
+  DB.sinh_vien.splice(i,1); toast('Đã xóa sinh viên'); render();
+}
+
+
+function renderGV(c) {
+  const q=searchTerm.toLowerCase();
+  const data=DB.giang_vien.filter(r=>!q||r.ho_ten.toLowerCase().includes(q)||r.id.includes(q));
+  c.innerHTML=`
+    <div class="content-header">
+      <h2>👨‍🏫 Giảng viên <span style="font-weight:400;font-size:.9rem;color:var(--muted)">(${data.length} bản ghi)</span></h2>
+      <div class="search-wrap">
+        <input type="text" placeholder="🔍 Tìm tên, mã GV..." value="${searchTerm}" oninput="searchTerm=this.value;renderGV(document.getElementById('content'))">
+        <button class="btn btn-primary" onclick="openAddGV()">➕ Thêm mới</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Mã GV</th><th>Họ tên</th><th>Trình độ</th><th>Khoa</th><th>Email</th><th>Thao tác</th></tr></thead>
+      <tbody>${data.length?data.map(r=>{
+        const ri=DB.giang_vien.indexOf(r);
+        const k=DB.khoa.find(k=>k.ma_khoa===r.ma_khoa);
+        return`<tr>
+          <td style="font-family:var(--mono);font-size:.8rem;color:var(--primary);font-weight:600">${r.id}</td>
+          <td style="font-weight:600">${r.ho_ten}</td>
+          <td><span style="background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:6px;font-size:.8rem;font-weight:600">${r.trinh_do}</span></td>
+          <td style="font-size:.83rem">${k?k.ten_khoa:r.ma_khoa}</td>
+          <td style="color:var(--muted);font-size:.82rem">${r.email||''}</td>
+          <td><div class="actions-cell">
+            <button class="btn btn-warning btn-sm" onclick="openEditGV(${ri})">✏️ Sửa</button>
+            <button class="btn btn-danger btn-sm"  onclick="deleteGV(${ri})">🗑 Xóa</button>
+          </div></td>
+        </tr>`;}).join(''):`<tr><td colspan="6"><div class="empty"><div class="icon">😶</div>Không tìm thấy</div></td></tr>`}
+      </tbody>
+    </table></div>`;
+}
+function openAddGV(){
+  editingIndex=null;editingTable='gv';
+  document.getElementById('modal-title').textContent='➕ Thêm giảng viên mới';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-row">
+      <div class="form-group"><label>Mã GV *</label><input id="f_id" placeholder="GV016"></div>
+      <div class="form-group"><label>Họ tên *</label><input id="f_ten" placeholder="ThS. Nguyễn Văn A"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Trình độ</label>
+        <select id="f_td"><option>Thạc sĩ</option><option>Tiến sĩ</option><option>Phó Giáo sư</option><option>Giáo sư</option></select></div>
+      <div class="form-group"><label>Khoa</label><select id="f_khoa">${khoaOptions()}</select></div>
+    </div>
+    <div class="form-group"><label>Email</label><input id="f_email" type="email" placeholder="email@hdn.edu.vn"></div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function openEditGV(i){
+  editingIndex=i;editingTable='gv';const r=DB.giang_vien[i];
+  document.getElementById('modal-title').textContent='✏️ Sửa thông tin giảng viên';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-row">
+      <div class="form-group"><label>Mã GV</label><input id="f_id" value="${r.id}" readonly style="background:#f5f7ff;color:var(--muted)"></div>
+      <div class="form-group"><label>Họ tên *</label><input id="f_ten" value="${r.ho_ten}"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Trình độ</label>
+        <select id="f_td">${['Thạc sĩ','Tiến sĩ','Phó Giáo sư','Giáo sư'].map(t=>`<option${t===r.trinh_do?' selected':''}>${t}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Khoa</label><select id="f_khoa">${khoaOptions(r.ma_khoa)}</select></div>
+    </div>
+    <div class="form-group"><label>Email</label><input id="f_email" type="email" value="${r.email||''}"></div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function deleteGV(i){
+  if(!confirm(`Xóa giảng viên "${DB.giang_vien[i].ho_ten}"?`))return;
+  DB.giang_vien.splice(i,1);toast('Đã xóa giảng viên');render();
+}
+
+
+function renderMH(c){
+  const q=searchTerm.toLowerCase();
+  const data=DB.mon_hoc.filter(r=>!q||r.ten.toLowerCase().includes(q)||r.ma.includes(q));
+  c.innerHTML=`
+    <div class="content-header">
+      <h2>📚 Môn học <span style="font-weight:400;font-size:.9rem;color:var(--muted)">(${data.length} bản ghi)</span></h2>
+      <div class="search-wrap">
+        <input type="text" placeholder="🔍 Tìm tên môn..." value="${searchTerm}" oninput="searchTerm=this.value;renderMH(document.getElementById('content'))">
+        <button class="btn btn-primary" onclick="openAddMH()">➕ Thêm mới</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Mã môn</th><th>Tên môn học</th><th>Số tín chỉ</th><th>Khoa phụ trách</th><th>Thao tác</th></tr></thead>
+      <tbody>${data.length?data.map(r=>{
+        const ri=DB.mon_hoc.indexOf(r);
+        const k=DB.khoa.find(k=>k.ma_khoa===r.ma_khoa);
+        return`<tr>
+          <td style="font-family:var(--mono);font-size:.8rem;color:var(--primary);font-weight:600">${r.ma}</td>
+          <td style="font-weight:600">${r.ten}</td>
+          <td><span style="background:#fffbeb;color:#92400e;padding:2px 10px;border-radius:6px;font-weight:700">${r.tc} TC</span></td>
+          <td style="font-size:.83rem;color:var(--muted)">${k?k.ten_khoa:r.ma_khoa}</td>
+          <td><div class="actions-cell">
+            <button class="btn btn-warning btn-sm" onclick="openEditMH(${ri})">✏️ Sửa</button>
+            <button class="btn btn-danger btn-sm"  onclick="deleteMH(${ri})">🗑 Xóa</button>
+          </div></td>
+        </tr>`;}).join(''):`<tr><td colspan="5"><div class="empty"><div class="icon">😶</div>Không tìm thấy</div></td></tr>`}
+      </tbody>
+    </table></div>`;
+}
+function openAddMH(){
+  editingIndex=null;editingTable='mh';
+  document.getElementById('modal-title').textContent='➕ Thêm môn học mới';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-row">
+      <div class="form-group"><label>Mã môn *</label><input id="f_ma" placeholder="INT1601"></div>
+      <div class="form-group"><label>Số tín chỉ *</label><input id="f_tc" type="number" min="1" max="10" value="3"></div>
+    </div>
+    <div class="form-group"><label>Tên môn học *</label><input id="f_ten" placeholder="Tên môn học"></div>
+    <div class="form-group"><label>Khoa phụ trách</label><select id="f_khoa">${khoaOptions()}</select></div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function openEditMH(i){
+  editingIndex=i;editingTable='mh';const r=DB.mon_hoc[i];
+  document.getElementById('modal-title').textContent='✏️ Sửa môn học';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-row">
+      <div class="form-group"><label>Mã môn</label><input id="f_ma" value="${r.ma}" readonly style="background:#f5f7ff;color:var(--muted)"></div>
+      <div class="form-group"><label>Số tín chỉ *</label><input id="f_tc" type="number" min="1" max="10" value="${r.tc}"></div>
+    </div>
+    <div class="form-group"><label>Tên môn học *</label><input id="f_ten" value="${r.ten}"></div>
+    <div class="form-group"><label>Khoa phụ trách</label><select id="f_khoa">${khoaOptions(r.ma_khoa)}</select></div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function deleteMH(i){
+  if(!confirm(`Xóa môn "${DB.mon_hoc[i].ten}"?`))return;
+  DB.mon_hoc.splice(i,1);toast('Đã xóa môn học');render();
+}
+
+
+function renderDiem(c){
+  const q=searchTerm.toLowerCase();
+  const svMap={};DB.sinh_vien.forEach(s=>svMap[s.ma]=s.ho_ten);
+  const data=DB.diem.filter(r=>!q||svMap[r.ma_sv]?.toLowerCase().includes(q)||r.ma_sv.includes(q)||r.xl.includes(q.toUpperCase()));
+  c.innerHTML=`
+    <div class="content-header">
+      <h2>📊 Điểm số <span style="font-weight:400;font-size:.9rem;color:var(--muted)">(${data.length} bản ghi)</span></h2>
+      <div class="search-wrap">
+        <input type="text" placeholder="🔍 Tìm tên SV, xếp loại..." value="${searchTerm}" oninput="searchTerm=this.value;renderDiem(document.getElementById('content'))">
+        <button class="btn btn-primary" onclick="openAddDiem()">➕ Thêm điểm</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Sinh viên</th><th>Môn học</th><th>CC</th><th>Giữa kỳ</th><th>Cuối kỳ</th><th>Tổng kết</th><th>Xếp loại</th><th>Thao tác</th></tr></thead>
+      <tbody>${data.length?data.map(r=>{
+        const ri=DB.diem.indexOf(r);
+        return`<tr>
+          <td><div style="font-weight:600;font-size:.88rem">${svMap[r.ma_sv]||r.ma_sv}</div><div style="font-size:.75rem;color:var(--muted);font-family:var(--mono)">${r.ma_sv}</div></td>
+          <td style="font-size:.83rem">${r.mon}</td>
+          <td>${r.cc}</td><td>${r.gk}</td><td>${r.ck}</td>
+          <td style="font-weight:700;color:var(--primary)">${r.tk}</td>
+          <td><span class="badge badge-${r.xl}">${r.xl}</span></td>
+          <td><div class="actions-cell">
+            <button class="btn btn-warning btn-sm" onclick="openEditDiem(${ri})">✏️ Sửa</button>
+            <button class="btn btn-danger btn-sm"  onclick="deleteDiem(${ri})">🗑 Xóa</button>
+          </div></td>
+        </tr>`;}).join(''):`<tr><td colspan="8"><div class="empty"><div class="icon">😶</div>Không tìm thấy</div></td></tr>`}
+      </tbody>
+    </table></div>`;
+}
+function svOptions(sel=''){
+  return DB.sinh_vien.map(s=>`<option value="${s.ma}"${s.ma===sel?' selected':''}>${s.ma} – ${s.ho_ten}</option>`).join('');
+}
+function monOptions(sel=''){
+  return DB.mon_hoc.map(m=>`<option value="${m.ten}"${m.ten===sel?' selected':''}>${m.ten}</option>`).join('');
+}
+function openAddDiem(){
+  editingIndex=null;editingTable='diem';
+  document.getElementById('modal-title').textContent='➕ Thêm điểm sinh viên';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-group"><label>Sinh viên *</label><select id="f_sv">${svOptions()}</select></div>
+    <div class="form-group"><label>Môn học *</label><select id="f_mon">${monOptions()}</select></div>
+    <div class="form-row">
+      <div class="form-group"><label>Chuyên cần (0–10)</label><input id="f_cc" type="number" min="0" max="10" step="0.5" value="8"></div>
+      <div class="form-group"><label>Giữa kỳ (0–10)</label><input id="f_gk" type="number" min="0" max="10" step="0.5" value="8"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Cuối kỳ (0–10)</label><input id="f_ck" type="number" min="0" max="10" step="0.5" value="8"></div>
+      <div class="form-group"><label>Tổng kết (0–10)</label><input id="f_tk" type="number" min="0" max="10" step="0.5" value="8"></div>
+    </div>
+    <div class="form-group"><label>Xếp loại</label>
+      <select id="f_xl"><option>A</option><option>B</option><option>C</option><option>D</option><option>F</option></select></div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function openEditDiem(i){
+  editingIndex=i;editingTable='diem';const r=DB.diem[i];
+  document.getElementById('modal-title').textContent='✏️ Sửa điểm';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-group"><label>Sinh viên</label><select id="f_sv" disabled>${svOptions(r.ma_sv)}</select></div>
+    <div class="form-group"><label>Môn học</label><input id="f_mon" value="${r.mon}" readonly style="background:#f5f7ff;color:var(--muted)"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Chuyên cần</label><input id="f_cc" type="number" min="0" max="10" step="0.5" value="${r.cc}"></div>
+      <div class="form-group"><label>Giữa kỳ</label><input id="f_gk" type="number" min="0" max="10" step="0.5" value="${r.gk}"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Cuối kỳ</label><input id="f_ck" type="number" min="0" max="10" step="0.5" value="${r.ck}"></div>
+      <div class="form-group"><label>Tổng kết</label><input id="f_tk" type="number" min="0" max="10" step="0.5" value="${r.tk}"></div>
+    </div>
+    <div class="form-group"><label>Xếp loại</label>
+      <select id="f_xl">${['A','B','C','D','F'].map(x=>`<option${x===r.xl?' selected':''}>${x}</option>`).join('')}</select></div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function deleteDiem(i){
+  if(!confirm('Xóa bản ghi điểm này?'))return;
+  DB.diem.splice(i,1);toast('Đã xóa điểm');render();
+}
+
+
+function renderLop(c){
+  const q=searchTerm.toLowerCase();
+  const data=DB.lop.filter(r=>!q||r.ten_lop.toLowerCase().includes(q)||r.ma_lop.includes(q));
+  c.innerHTML=`
+    <div class="content-header">
+      <h2>🏫 Lớp học <span style="font-weight:400;font-size:.9rem;color:var(--muted)">(${data.length} bản ghi)</span></h2>
+      <div class="search-wrap">
+        <input type="text" placeholder="🔍 Tìm lớp..." value="${searchTerm}" oninput="searchTerm=this.value;renderLop(document.getElementById('content'))">
+        <button class="btn btn-primary" onclick="openAddLop()">➕ Thêm mới</button>
+      </div>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Mã lớp</th><th>Tên lớp</th><th>Khoa</th><th>Số SV</th><th>Thao tác</th></tr></thead>
+      <tbody>${data.map(r=>{
+        const ri=DB.lop.indexOf(r);
+        const soSV=DB.sinh_vien.filter(s=>s.ma_lop===r.ma_lop).length;
+        return`<tr>
+          <td style="font-family:var(--mono);font-size:.8rem;color:var(--primary);font-weight:600">${r.ma_lop}</td>
+          <td style="font-weight:600">${r.ten_lop}</td>
+          <td style="font-size:.83rem;color:var(--muted)">${r.khoa}</td>
+          <td><span style="background:#eff3ff;color:var(--primary);padding:2px 10px;border-radius:6px;font-weight:700">${soSV} SV</span></td>
+          <td><div class="actions-cell">
+            <button class="btn btn-warning btn-sm" onclick="openEditLop(${ri})">✏️ Sửa</button>
+            <button class="btn btn-danger btn-sm"  onclick="deleteLop(${ri})">🗑 Xóa</button>
+          </div></td>
+        </tr>`;}).join('')}
+      </tbody>
+    </table></div>`;
+}
+function openAddLop(){
+  editingIndex=null;editingTable='lop';
+  document.getElementById('modal-title').textContent='➕ Thêm lớp học mới';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-row">
+      <div class="form-group"><label>Mã lớp *</label><input id="f_ma" placeholder="K80CNTT3"></div>
+      <div class="form-group"><label>Tên lớp *</label><input id="f_ten" placeholder="K80CNTT3"></div>
+    </div>
+    <div class="form-group"><label>Khoa *</label><input id="f_khoa" placeholder="Công nghệ Thông tin"></div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function openEditLop(i){
+  editingIndex=i;editingTable='lop';const r=DB.lop[i];
+  document.getElementById('modal-title').textContent='✏️ Sửa thông tin lớp';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-row">
+      <div class="form-group"><label>Mã lớp</label><input id="f_ma" value="${r.ma_lop}" readonly style="background:#f5f7ff;color:var(--muted)"></div>
+      <div class="form-group"><label>Tên lớp *</label><input id="f_ten" value="${r.ten_lop}"></div>
+    </div>
+    <div class="form-group"><label>Khoa *</label><input id="f_khoa" value="${r.khoa}"></div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function deleteLop(i){
+  const hasSV=DB.sinh_vien.some(s=>s.ma_lop===DB.lop[i].ma_lop);
+  if(hasSV){toast('Không thể xóa: lớp còn sinh viên!','error');return;}
+  if(!confirm(`Xóa lớp "${DB.lop[i].ma_lop}"?`))return;
+  DB.lop.splice(i,1);toast('Đã xóa lớp');render();
+}
+
+function renderKhoa(c){
+  c.innerHTML=`
+    <div class="content-header">
+      <h2>🏛 Khoa <span style="font-weight:400;font-size:.9rem;color:var(--muted)">(${DB.khoa.length} bản ghi)</span></h2>
+      <button class="btn btn-primary" onclick="openAddKhoa()">➕ Thêm mới</button>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Mã khoa</th><th>Tên khoa</th><th>Số môn học</th><th>Thao tác</th></tr></thead>
+      <tbody>${DB.khoa.map((r,i)=>{
+        const soMon=DB.mon_hoc.filter(m=>m.ma_khoa===r.ma_khoa).length;
+        return`<tr>
+          <td style="font-family:var(--mono);font-size:.8rem;color:var(--primary);font-weight:600">${r.ma_khoa}</td>
+          <td style="font-weight:600">${r.ten_khoa}</td>
+          <td>${soMon} môn</td>
+          <td><div class="actions-cell">
+            <button class="btn btn-warning btn-sm" onclick="openEditKhoa(${i})">✏️ Sửa</button>
+            <button class="btn btn-danger btn-sm"  onclick="deleteKhoa(${i})">🗑 Xóa</button>
+          </div></td>
+        </tr>`;}).join('')}
+      </tbody>
+    </table></div>`;
+}
+function openAddKhoa(){
+  editingIndex=null;editingTable='khoa';
+  document.getElementById('modal-title').textContent='➕ Thêm khoa mới';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-row">
+      <div class="form-group"><label>Mã khoa *</label><input id="f_ma" placeholder="VD: SINH"></div>
+      <div class="form-group"><label>Tên khoa *</label><input id="f_ten" placeholder="Khoa Sinh học"></div>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function openEditKhoa(i){
+  editingIndex=i;editingTable='khoa';const r=DB.khoa[i];
+  document.getElementById('modal-title').textContent='✏️ Sửa khoa';
+  document.getElementById('modal-body').innerHTML=`
+    <div class="form-row">
+      <div class="form-group"><label>Mã khoa</label><input id="f_ma" value="${r.ma_khoa}" readonly style="background:#f5f7ff;color:var(--muted)"></div>
+      <div class="form-group"><label>Tên khoa *</label><input id="f_ten" value="${r.ten_khoa}"></div>
+    </div>`;
+  document.getElementById('overlay').classList.add('open');
+}
+function deleteKhoa(i){
+  if(!confirm(`Xóa khoa "${DB.khoa[i].ten_khoa}"?`))return;
+  DB.khoa.splice(i,1);toast('Đã xóa khoa');render();
+}
+
+function saveRecord(){
+  const g=id=>document.getElementById(id)?.value.trim();
+  if(editingTable==='sv'){
+    const ma=g('f_ma'),ten=g('f_ten');
+    if(!ma||!ten){toast('Vui lòng điền đầy đủ thông tin bắt buộc!','error');return;}
+    const rec={ma,ho_ten:ten,ngay_sinh:g('f_ns'),gioi_tinh:g('f_gt'),email:g('f_email'),ma_lop:g('f_lop')};
+    if(editingIndex===null){
+      if(DB.sinh_vien.find(s=>s.ma===ma)){toast('Mã sinh viên đã tồn tại!','error');return;}
+      DB.sinh_vien.push(rec);toast('Thêm sinh viên thành công!');
+    } else {DB.sinh_vien[editingIndex]=rec;toast('Cập nhật thành công!');}
+  } else if(editingTable==='gv'){
+    const id=g('f_id'),ten=g('f_ten');
+    if(!id||!ten){toast('Vui lòng điền đầy đủ!','error');return;}
+    const rec={id,ho_ten:ten,trinh_do:g('f_td'),ma_khoa:g('f_khoa'),email:g('f_email')};
+    if(editingIndex===null){DB.giang_vien.push(rec);toast('Thêm giảng viên thành công!');}
+    else{DB.giang_vien[editingIndex]=rec;toast('Cập nhật thành công!');}
+  } else if(editingTable==='mh'){
+    const ma=g('f_ma'),ten=g('f_ten'),tc=parseInt(g('f_tc'));
+    if(!ma||!ten||!tc){toast('Vui lòng điền đầy đủ!','error');return;}
+    const rec={ma,ten,tc,ma_khoa:g('f_khoa')};
+    if(editingIndex===null){DB.mon_hoc.push(rec);toast('Thêm môn học thành công!');}
+    else{DB.mon_hoc[editingIndex]=rec;toast('Cập nhật thành công!');}
+  } else if(editingTable==='diem'){
+    const tk=parseFloat(g('f_tk'));
+    const rec={ma_sv:g('f_sv'),ma_lhp:'LHP_NEW',mon:g('f_mon'),cc:parseFloat(g('f_cc')),gk:parseFloat(g('f_gk')),ck:parseFloat(g('f_ck')),tk,xl:g('f_xl')};
+    if(editingIndex===null){DB.diem.push(rec);toast('Thêm điểm thành công!');}
+    else{DB.diem[editingIndex]=rec;toast('Cập nhật điểm thành công!');}
+  } else if(editingTable==='lop'){
+    const ma=g('f_ma'),ten=g('f_ten'),khoa=g('f_khoa');
+    if(!ma||!ten||!khoa){toast('Vui lòng điền đầy đủ!','error');return;}
+    const rec={ma_lop:ma,ten_lop:ten,khoa};
+    if(editingIndex===null){DB.lop.push(rec);toast('Thêm lớp thành công!');}
+    else{DB.lop[editingIndex]=rec;toast('Cập nhật thành công!');}
+  } else if(editingTable==='khoa'){
+    const ma=g('f_ma'),ten=g('f_ten');
+    if(!ma||!ten){toast('Vui lòng điền đầy đủ!','error');return;}
+    const rec={ma_khoa:ma,ten_khoa:ten};
+    if(editingIndex===null){DB.khoa.push(rec);toast('Thêm khoa thành công!');}
+    else{DB.khoa[editingIndex]=rec;toast('Cập nhật thành công!');}
+  }
+  closeModal(); render();
+}
+
+function closeModal(){document.getElementById('overlay').classList.remove('open');}
+document.getElementById('overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// ── INIT ──
+render();
+</script>
+</body>
+</html>
